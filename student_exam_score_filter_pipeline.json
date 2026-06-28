@@ -1,0 +1,199 @@
+{
+  "name": "Student Exam Score Filter Pipeline",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1a2b3c4d-0001-4a1a-8b1a-000000000001",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const students = [\n  { student_name: \"Alice Johnson\", student_id: \"S1001\", exam_score: 88 },\n  { student_name: \"Brian Smith\", student_id: \"S1002\", exam_score: 54 },\n  { student_name: \"Carla Mendes\", student_id: \"S1003\", exam_score: 60 },\n  { student_name: \"David Kim\", student_id: \"S1004\", exam_score: 45 }\n];\n\nreturn students.map(student => ({ json: student }));"
+      },
+      "id": "1a2b3c4d-0002-4a1a-8b1a-000000000002",
+      "name": "Static Student Dataset",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1d2e3f4-0001-4a1a-8b1a-000000000010",
+              "leftValue": "={{ $json.exam_score }}",
+              "rightValue": 60,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1a2b3c4d-0003-4a1a-8b1a-000000000003",
+      "name": "Exam Score >= 60?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4e5f6a7-0001-4a1a-8b1a-000000000020",
+              "name": "passed_student",
+              "type": "string",
+              "value": "={{ $json.student_name }}"
+            },
+            {
+              "id": "d4e5f6a7-0002-4a1a-8b1a-000000000021",
+              "name": "student_id",
+              "type": "string",
+              "value": "={{ $json.student_id }}"
+            },
+            {
+              "id": "d4e5f6a7-0003-4a1a-8b1a-000000000022",
+              "name": "exam_score",
+              "type": "number",
+              "value": "={{ $json.exam_score }}"
+            },
+            {
+              "id": "d4e5f6a7-0004-4a1a-8b1a-000000000023",
+              "name": "status",
+              "type": "string",
+              "value": "Approved"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "1a2b3c4d-0004-4a1a-8b1a-000000000004",
+      "name": "Set - Passed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        940,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e5f6a7b8-0001-4a1a-8b1a-000000000030",
+              "name": "failed_student",
+              "type": "string",
+              "value": "={{ $json.student_name }}"
+            },
+            {
+              "id": "e5f6a7b8-0002-4a1a-8b1a-000000000031",
+              "name": "student_id",
+              "type": "string",
+              "value": "={{ $json.student_id }}"
+            },
+            {
+              "id": "e5f6a7b8-0003-4a1a-8b1a-000000000032",
+              "name": "exam_score",
+              "type": "number",
+              "value": "={{ $json.exam_score }}"
+            },
+            {
+              "id": "e5f6a7b8-0004-4a1a-8b1a-000000000033",
+              "name": "status",
+              "type": "string",
+              "value": "Remedial Required"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "1a2b3c4d-0005-4a1a-8b1a-000000000005",
+      "name": "Set - Failed",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        940,
+        420
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Static Student Dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Static Student Dataset": {
+      "main": [
+        [
+          {
+            "node": "Exam Score >= 60?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exam Score >= 60?": {
+      "main": [
+        [
+          {
+            "node": "Set - Passed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set - Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
